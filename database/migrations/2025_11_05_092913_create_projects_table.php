@@ -16,6 +16,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('owner_id')->constrained('users')->onDelete('cascade'); // who created/owns
             $table->string('name');
+            $table->string('client-name')->nullable();
+            $table->string('candidate-name')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('email')->nullable();
+            $table->string('position')->nullable();
             $table->text('description')->nullable();
             $table->enum('status', ['active', 'archived','ongoing', 'completed'])->default('active');
             $table->date('start_date')->nullable();
@@ -27,7 +32,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('project_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->enum('role', ['owner', 'manager', 'member'])->default('member');
+            $table->enum('role', ['owner', 'manager', 'recruiter', 'member'])->default('member');
             $table->timestamps();
             $table->unique(['project_id', 'user_id']);
         });

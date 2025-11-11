@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 // app/Models/Project.php
 class Project extends Model
 {
-    protected $fillable = ['owner_id','name','description','status','start_date','end_date'];
+    protected $fillable = ['owner_id','name','description','status','start_date','end_date','client-name','candidate-name','phone','email','position'];
 
     public function owner() { return $this->belongsTo(User::class,'owner_id'); }
     //public function members() { return $this->belongsToMany(User::class)->withTimestamps()->withPivot('role'); }

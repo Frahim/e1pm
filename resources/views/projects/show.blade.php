@@ -3,16 +3,12 @@
 @section('content')
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="bg-white shadow rounded-lg border overflow-hidden">
+        {{-- Header Section --}}
         <div class="px-6 py-6 border-b">
             <div class="flex items-start justify-between space-x-6">
                 <div>
                     <h2 class="text-2xl font-bold text-gray-900">{{ $project->name }}</h2>
-                    <p class="mt-1 text-sm text-gray-600">{{ $project->description ?? 'No description provided.' }}</p>
-
-                    <div class="mt-3 text-sm text-gray-500">
-                        <span class="mr-4">Owner: <strong class="text-gray-700">{{ $project->owner->name ?? '—' }}</strong></span>
-                        <span>Your role: <strong class="text-gray-700">{{ $project->roleFor(auth()->id()) ?? ($project->owner_id === auth()->id() ? 'owner' : 'not a member') }}</strong></span>
-                    </div>
+                    
                 </div>
 
                 <div class="flex items-start space-x-2">
@@ -31,17 +27,64 @@
                 </div>
             </div>
         </div>
+        {{-- End Header Section --}}
 
         <div class="px-6 py-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="col-span-2">
-                    <h3 class="text-sm font-medium text-gray-600 mb-2">Project Overview</h3>
-                    <div class="prose prose-sm max-w-none">
-                        <p class="text-gray-700">{{ $project->description ?? 'No extra details.' }}</p>
-                    </div>
+                
+                {{-- Main Content Column (Project Details & Tasks) --}}
+                <div class="md:col-span-2">
 
+                    {{-- NEW: Project Details Block --}}
+                    <h3 class="text-lg font-bold text-gray-800 border-b pb-2 mb-4">Project Details</h3>
+                    <div class="grid grid-cols-2 gap-y-3 gap-x-6 text-sm">
+                        
+                        {{-- Status & Dates --}}
+                        <div>
+                            <p class="text-gray-500 font-medium">Status</p>
+                            <p class="text-gray-900 font-semibold">{{ ucfirst($project->status) ?? '—' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 font-medium">Position</p>
+                            <p class="text-gray-900">{{ $project->position ?? '—' }}</p>
+                        </div>
+                        <div class="col-span-1">
+                            <p class="text-gray-500 font-medium">Start Date</p>
+                            <p class="text-gray-900">{{ $project->start_date ? \Carbon\Carbon::parse($project->start_date)->format('M d, Y') : '—' }}</p>
+                        </div>
+                        <div class="col-span-1">
+                            <p class="text-gray-500 font-medium">End Date</p>
+                            <p class="text-gray-900">{{ $project->end_date ? \Carbon\Carbon::parse($project->end_date)->format('M d, Y') : '—' }}</p>
+                        </div>
+                        
+                        {{-- Client and Candidate Info --}}
+                        <div class="col-span-2">
+                            <h4 class="mt-4 text-md font-bold text-gray-700 border-t pt-3 mb-2">Candidate & Client Information</h4>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 font-medium">Client Name</p>
+                            <p class="text-gray-900">{{ $project->{'client-name'} ?? '—' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 font-medium">Candidate Name</p>
+                            <p class="text-gray-900">{{ $project->{'candidate-name'} ?? '—' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 font-medium">Phone</p>
+                            <p class="text-gray-900">{{ $project->phone ?? '—' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 font-medium">Email</p>
+                            <p class="text-gray-900">{{ $project->email ?? '—' }}</p>
+                        </div>
+                    </div>
+                    {{-- End Project Details Block --}}
+
+                    <hr class="my-6 border-gray-200">
+
+                    {{-- Tasks Section (Existing) --}}
                     <div class="mt-6">
-                        <h4 class="mt-6 text-lg font-medium">Tasks</h4>
+                        <h4 class="mt-6 text-lg font-bold border-b pb-2 mb-4">Tasks</h4>
 
                         @can('createTask', $project)
                         <a href="{{ route('projects.tasks.create', $project) }}" class="inline-block mt-3 mb-4 px-3 py-2 bg-emerald-600 text-white rounded">+ New Task</a>
@@ -130,8 +173,10 @@
                         </div>
                         @endif
                     </div>
+                    {{-- End Tasks Section --}}
                 </div>
 
+                {{-- Sidebar Column (Members) (Existing) --}}
                 <aside class="bg-white border rounded p-4">
                     <h4 class="text-sm font-semibold text-gray-700 mb-3">Members</h4>
                     <ul class="space-y-2">
@@ -180,23 +225,26 @@
                     </form>
                     @endcan
                 </aside>
+                {{-- End Sidebar Column --}}
             </div>
         </div>
 
+        {{-- Footer Section (Existing) --}}
         <div class="px-6 py-4 bg-gray-50 border-t text-xs text-gray-500">
             Created: {{ $project->created_at->format('M j, Y H:i') }} · Last updated: {{ $project->updated_at->diffForHumans() }}
             <span>Status:</span>
             <button class="badge 
-            @if($project->status == 'active') bg-slate-200            
+            @if($project->status == 'active') bg-slate-200 
             @elseif($project->status == 'completed') bg-primary 
             @else bg-secondary @endif">
                 {{ ucfirst($project->status) }}
             </button>
         </div>
+        {{-- End Footer Section --}}
     </div>
 </div>
 
-{{-- Inline JS for AJAX status update (uses Axios). Fallback is the PATCH form above --}}
+{{-- Inline JS for AJAX status update (Existing) --}}
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -208,11 +256,7 @@
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
         // project id for building API path
-        const projectId = {
-            {
-                $projectId ?? $project - > id
-            }
-        };
+        const projectId = {!! $project->id !!}; // Correct way to pass ID
 
         // delegate change events for .status-select elements
         document.body.addEventListener('change', function(e) {

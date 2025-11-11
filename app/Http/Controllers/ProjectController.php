@@ -40,27 +40,49 @@ class ProjectController extends Controller
     /**
      * Store new project in database.
      */
-    public function store(Request $request)
-    {
-        $this->authorize('create', Project::class);
+   public function store(Request $request)
+{
+    $this->authorize('create', Project::class);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        
+        // --- ADDED FIELDS VALIDATION ---
+        'status' => 'required|string|in:Active,Pending,Completed,Cancelled', // Validate against allowed statuses
+        'start_date' => 'nullable|date',
+        'end_date' => 'nullable|date|after_or_equal:start_date', // Ensure end date is not before start date
+        // -------------------------------
+        
+        'client-name' => 'nullable|string|max:255', // Added max length for safety
+        'candidate-name' => 'nullable|string|max:255', // Added max length for safety
+        'phone' => 'nullable|string|max:20', // Using string for flexibility, added max length
+        'email' => 'nullable|email|max:255', // Used email rule for format validation
+        'position' => 'nullable|string|max:255',
+    ]);
 
-        $project = Project::create([
-            'name' => $validated['name'],
-            'description' => $validated['description'] ?? '',
-            'owner_id' => auth()->id(),
-        ]);
-
-        if (method_exists($project, 'members')) {
-            $project->members()->attach(auth()->id(), ['role' => 'owner']);
-        }
-
-        return redirect()->route('projects.show', $project)->with('success', 'Project created successfully!');
-    }
+    $project = Project::create([
+        'owner_id' => auth()->id(), // Place owner_id first as it's typically required
+        'name' => $validated['name'],
+        'description' => $validated['description'] ?? '',
+        
+        // --- ADDED FIELDS ASSIGNMENT ---
+        'status' => $validated['status'],
+        'start_date' => $validated['start_date'] ?? null,
+        'end_date' => $validated['end_date'] ?? null,
+        // -------------------------------
+        
+        // Note: Hyphenated fields use the array key $validated['client-name']
+        'client-name' => $validated['client-name'] ?? '', 
+        'candidate-name' => $validated['candidate-name'] ?? '',
+        'phone' => $validated['phone'] ?? '',
+        'email' => $validated['email'] ?? '',
+        'position' => $validated['position'] ?? '',
+    ]);
+    
+    // Don't forget to return a response after creation!
+    return redirect()->route('projects.show', $project)->with('success', 'Project created successfully!');
+}
 
     /**
      * Display single project.
@@ -103,14 +125,40 @@ class ProjectController extends Controller
         $this->authorize('update', $project);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        
+        // --- ADDED FIELDS VALIDATION ---
+        'status' => 'required|string|in:Active,Pending,Completed,Cancelled', // Validate against allowed statuses
+        'start_date' => 'nullable|date',
+        'end_date' => 'nullable|date|after_or_equal:start_date', // Ensure end date is not before start date
+        // -------------------------------
+        
+        'client-name' => 'nullable|string|max:255', // Added max length for safety
+        'candidate-name' => 'nullable|string|max:255', // Added max length for safety
+        'phone' => 'nullable|string|max:20', // Using string for flexibility, added max length
+        'email' => 'nullable|email|max:255', // Used email rule for format validation
+        'position' => 'nullable|string|max:255',
+    ]);
 
-        $project->update([
-            'name' => $validated['name'],
-            'description' => $validated['description'] ?? '',
-        ]);
+    $project = Project::create([
+        'owner_id' => auth()->id(), // Place owner_id first as it's typically required
+        'name' => $validated['name'],
+        'description' => $validated['description'] ?? '',
+        
+        // --- ADDED FIELDS ASSIGNMENT ---
+        'status' => $validated['status'],
+        'start_date' => $validated['start_date'] ?? null,
+        'end_date' => $validated['end_date'] ?? null,
+        // -------------------------------
+        
+        // Note: Hyphenated fields use the array key $validated['client-name']
+        'client-name' => $validated['client-name'] ?? '', 
+        'candidate-name' => $validated['candidate-name'] ?? '',
+        'phone' => $validated['phone'] ?? '',
+        'email' => $validated['email'] ?? '',
+        'position' => $validated['position'] ?? '',
+    ]);
 
         return redirect()
             ->route('projects.show', $project)
